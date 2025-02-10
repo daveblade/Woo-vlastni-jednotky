@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit; // Zamezení přímému přístupu
 }
 
-// âœ… Oprava nastavení množství u produktu a jeho variant
+//  Oprava nastavení množství u produktu a jeho variant
 add_filter('woocommerce_quantity_input_args', function($args, $product) {
     if (get_post_meta($product->get_id(), '_enable_flexible_pricing', true) === 'yes') {
         $unit_size = get_post_meta($product->get_id(), '_unit_size', true);
@@ -20,20 +20,20 @@ add_filter('woocommerce_quantity_input_args', function($args, $product) {
             }
         }
 
-        // âœ… Oprava množství v košíku
+        //  Oprava množství v košíku
         if (is_cart()) {
 			foreach (WC()->cart->get_cart() as $cart_item) {
 				if ($cart_item['product_id'] == $product->get_id() || $cart_item['variation_id'] == $product->get_id()) {
-					$args['input_value'] = $cart_item['quantity']; // 🎯 Skutečné množství
-					$args['min_value'] = max(1, floatval($unit_size)); // 🔧 Zabrání nesprávnému přepsání
-					$args['step'] = floatval($unit_size); // ✅ Krok podle velikosti balení
+					$args['input_value'] = $cart_item['quantity']; // ðŸŽ¯ Skutečné množství
+					$args['min_value'] = max(1, floatval($unit_size)); // ðŸ”§ Zabrání nesprávnému přepsání
+					$args['step'] = floatval($unit_size); // âœ… Krok podle velikosti balení
 					return $args;
 				}
 			}
 		}
 
 
-        // âœ… Nastavení minimálního množství pro nové produkty
+        //  Nastavení minimálního množství pro nové produkty
         if (!empty($unit_size) && is_numeric($unit_size)) {
             $args['min_value'] = floatval($unit_size);
             $args['step'] = floatval($unit_size);
@@ -65,32 +65,32 @@ add_filter('woocommerce_cart_item_quantity', function($product_quantity, $cart_i
     return $product_quantity;
 }, 10, 3);
 
-// âœ… Oprava zaokrouhlování množství v košíku i pro variantní produkty
+//  Oprava zaokrouhlování množství v košíku i pro variantní produkty
 add_filter('woocommerce_update_cart_action_cart_updated', function() {
     foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
         $product_id = $cart_item['product_id'];
         $unit_size = get_post_meta($product_id, '_unit_size', true);
 
-        // âœ… Pokud se jedná o variantu, získáme správnou jednotkovou velikost
+        //  Pokud se jedná o variantu, získáme správnou jednotkovou velikost
         if (!empty($cart_item['variation_id'])) {
             $variant_unit_size = get_post_meta($cart_item['variation_id'], '_unit_size_var', true);
             if (!empty($variant_unit_size)) {
                 $unit_size = $variant_unit_size;
             }
         }
-        // âœ… Oprava množství podle jednotkové velikosti
+        //  Oprava množství podle jednotkové velikosti
         if (!empty($unit_size) && is_numeric($unit_size)) {
             $new_qty = ceil($cart_item['quantity'] / floatval($unit_size)) * floatval($unit_size);
 
-            // âœ… Aktualizace množství v košíku pro varianty i bÄ›žné produkty
+            //  Aktualizace množství v košíku pro varianty i bÃ„â€ºžné produkty
             WC()->cart->set_quantity($cart_item_key, max($new_qty, floatval($unit_size)));
 
-            error_log("ðŸ›  Opraveno množství pro produkt ID: $product_id, Varianta ID: " . ($cart_item['variation_id'] ?? 'N/A') . ", Nastavené množství: $new_qty");
+            error_log("Opraveno množství pro produkt ID: $product_id, Varianta ID: " . ($cart_item['variation_id'] ?? 'N/A') . ", Nastavené množství: $new_qty");
         }
     }
 });
 
-// âœ… Přidání jednotky u produktu
+//  Přidání jednotky u produktu
 add_action('woocommerce_before_add_to_cart_button', function() {
     global $product;
     if (get_post_meta($product->get_id(), '_enable_flexible_pricing', true) === 'yes') {
@@ -101,7 +101,7 @@ add_action('woocommerce_before_add_to_cart_button', function() {
     }
 });
 
-// âœ… Přidání jednotky do košíku
+//  Přidání jednotky do košíku
 add_filter('woocommerce_cart_item_name', function($product_name, $cart_item, $cart_item_key) {
     $unit_type = get_post_meta($cart_item['product_id'], '_unit_type', true);
     if (!empty($unit_type)) {
@@ -110,7 +110,7 @@ add_filter('woocommerce_cart_item_name', function($product_name, $cart_item, $ca
     return $product_name;
 }, 10, 3);
 
-// âœ… Přidání jednotky za cenu
+//  Přidání jednotky za cenu
 add_filter('woocommerce_get_price_html', function($price, $product) {
     if (get_post_meta($product->get_id(), '_enable_flexible_pricing', true) === 'yes') {
         $unit_type = get_post_meta($product->get_id(), '_unit_type', true);
